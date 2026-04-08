@@ -16,9 +16,10 @@ export default async function SignupPage({
   }
 
   const inviteToken = typeof params.invite === "string" ? params.invite : undefined;
+  const oauthError = typeof params.oauthError === "string" ? params.oauthError : null;
   const invitation = inviteToken
     ? await db.invitation.findUnique({ where: { token: inviteToken } })
     : null;
 
-  return <AuthCard inviteEmail={invitation?.email ?? null} inviteToken={invitation?.token ?? null} mode="signup" />;
+  return <AuthCard inviteEmail={invitation?.email ?? null} inviteToken={invitation?.token ?? null} mode="signup" oauthError={oauthError} />;
 }

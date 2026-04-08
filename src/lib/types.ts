@@ -1,6 +1,7 @@
 export type LocaleKey = "es" | "en" | "fr" | "ru";
 export type ThemeMode = "light" | "dark";
 export type Role = "admin" | "user";
+export type OAuthProvider = "google" | "facebook" | "instagram" | "linkedin";
 
 export type TranslationDictionary = {
   appName: string;
@@ -112,6 +113,16 @@ export type TranslationDictionary = {
   signUp: string;
   signInSubtitle: string;
   signUpSubtitle: string;
+  continueWith: string;
+  orContinueWith: string;
+  googleLabel: string;
+  facebookLabel: string;
+  instagramLabel: string;
+  linkedinLabel: string;
+  socialLoginUnavailable: string;
+  socialLoginNeedsInvitation: string;
+  socialLoginFailed: string;
+  socialLoginCancelled: string;
   email: string;
   password: string;
   name: string;

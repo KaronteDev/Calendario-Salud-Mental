@@ -20,6 +20,7 @@ Reconstrucción de una aplicación de seguimiento de bienestar personal con cale
 - Tema claro/oscuro persistido en navegador y sincronizado con usuario
 - Aislamiento de datos por usuario
 - Panel de administración en `/admin/users` para cambiar roles e invitar usuarios
+- Accesos sociales configurables para Google, Facebook, Instagram y LinkedIn
 
 ## Puesta en marcha
 
@@ -81,6 +82,23 @@ MAIL_FROM="WellFlow <no-reply@tu-dominio.com>"
 ```
 
 Cuando `SMTP_HOST`, `SMTP_USER` o `SMTP_PASS` faltan, la invitación se crea igualmente y el enlace queda disponible para copiar o reenviar desde `/admin/users`.
+
+## Configuración de acceso social
+
+Puedes activar los botones de acceso social configurando los credenciales OAuth y usando `APP_BASE_URL` con la URL exacta de tu app:
+
+```bash
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+FACEBOOK_CLIENT_ID=""
+FACEBOOK_CLIENT_SECRET=""
+INSTAGRAM_CLIENT_ID=""
+INSTAGRAM_CLIENT_SECRET=""
+LINKEDIN_CLIENT_ID=""
+LINKEDIN_CLIENT_SECRET=""
+```
+
+Si falta la configuración de un proveedor, el botón seguirá mostrándose en login pero redirigirá con un aviso indicando que ese acceso todavía no está configurado.
 
 ## Verificación
 

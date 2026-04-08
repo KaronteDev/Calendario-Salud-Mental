@@ -130,15 +130,14 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
   const { locale, theme, dictionary, setLocale, toggleTheme } = usePreferences();
   const analytics = buildMonthlyAnalytics(entries);
   const [activeTab, setActiveTab] = useState<"trends" | "sleep" | "profile" | "goals">("trends");
-  const todayKey = getTodayKey();
-  const initialSelectedDateKey = todayKey.startsWith(monthKey) ? todayKey : null;
-  const [selectedDateKey, setSelectedDateKey] = useState<string | null>(initialSelectedDateKey);
+  const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
   const [isLocaleMenuOpen, setIsLocaleMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const days = buildMonthMatrix(monthKey);
   const entryMap = new Map(entries.map((entry) => [entry.dateKey, entry]));
   const selectedEntry = selectedDateKey ? entryMap.get(selectedDateKey) ?? null : null;
+  const todayKey = getTodayKey();
 
   function navigateMonth(direction: -1 | 1) {
     const base = new Date(`${monthKey}-01T12:00:00`);

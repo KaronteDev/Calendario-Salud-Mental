@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 
 import { getCurrentUser } from "@/lib/auth";
 import { Providers } from "@/components/providers";
@@ -30,6 +31,16 @@ export default async function RootLayout({
   return (
     <html lang={user?.preferredLocale ?? "es"} suppressHydrationWarning>
       <body className={`${bodyFont.variable} ${headingFont.variable}`}>
+        <Script id="wellflow-theme-init" strategy="beforeInteractive">
+          {`
+            try {
+              const storedTheme = window.localStorage.getItem("wellflow-theme");
+              if (storedTheme === "light" || storedTheme === "dark") {
+                document.documentElement.dataset.theme = storedTheme;
+              }
+            } catch {}
+          `}
+        </Script>
         <Providers
           initialLocale={user?.preferredLocale ?? "es"}
           initialTheme={user?.themeMode ?? "dark"}
