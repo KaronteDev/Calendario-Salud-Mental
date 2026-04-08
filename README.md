@@ -21,6 +21,7 @@ Reconstrucción de una aplicación de seguimiento de bienestar personal con cale
 - Aislamiento de datos por usuario
 - Panel de administración en `/admin/users` para cambiar roles e invitar usuarios
 - Accesos sociales configurables para Google, Facebook, Instagram y LinkedIn
+- Recuperación de contraseña por email o enlace local de desarrollo
 
 ## Puesta en marcha
 
@@ -58,6 +59,8 @@ npm run dev
 - `/` Dashboard autenticado
 - `/login` Inicio de sesión
 - `/signup` Alta mediante invitación
+- `/forgot-password` Solicitud de recuperación de contraseña
+- `/reset-password?token=...` Cambio de contraseña mediante token
 - `/day/YYYY-MM-DD` Registro diario
 - `/admin/users` Gestión de usuarios e invitaciones
 
@@ -72,7 +75,7 @@ npm run dev
 Para que el panel admin envíe invitaciones reales por correo, configura estas variables en `.env`:
 
 ```bash
-APP_BASE_URL="http://localhost:3000"
+APP_BASE_URL="http://localhost:3001"
 SMTP_HOST="smtp.tu-proveedor.com"
 SMTP_PORT="587"
 SMTP_SECURE="false"
@@ -82,6 +85,7 @@ MAIL_FROM="WellFlow <no-reply@tu-dominio.com>"
 ```
 
 Cuando `SMTP_HOST`, `SMTP_USER` o `SMTP_PASS` faltan, la invitación se crea igualmente y el enlace queda disponible para copiar o reenviar desde `/admin/users`.
+La recuperación de contraseña usa el mismo SMTP; si no está configurado, la app genera un enlace local para continuar en desarrollo.
 
 ## Configuración de acceso social
 
@@ -99,6 +103,38 @@ LINKEDIN_CLIENT_SECRET=""
 ```
 
 Si falta la configuración de un proveedor, el botón seguirá mostrándose en login pero redirigirá con un aviso indicando que ese acceso todavía no está configurado.
+
+### Redirect URIs
+
+Registra estas URLs de callback en cada proveedor, cambiando el dominio si despliegas fuera de local:
+
+```bash
+Google    -> http://localhost:3001/api/auth/oauth/google/callback
+Facebook  -> http://localhost:3001/api/auth/oauth/facebook/callback
+Instagram -> http://localhost:3001/api/auth/oauth/instagram/callback
+LinkedIn  -> http://localhost:3001/api/auth/oauth/linkedin/callback
+```
+
+### Guía rápida por proveedor
+
+Google:
+`Google Cloud Console` → `APIs & Services` → `Credentials` → crea `OAuth client ID` tipo `Web application`. Añade el callback de Google y pon el `Authorized JavaScript origin` en `http://localhost:3001`.
+
+Facebook:
+`Meta for Developers` → crea una app → añade `Facebook Login for Business` o `Facebook Login` → en `Valid OAuth Redirect URIs` pega el callback de Facebook.
+
+Instagram:
+Usa `Meta for Developers` con producto `Instagram Basic Display` o el flujo que tengas habilitado. Debes registrar el callback de Instagram y verificar que la app permite ese redirect exacto.
+
+LinkedIn:
+`LinkedIn Developer Portal` → crea app → `Auth` → añade el callback de LinkedIn en `Authorized redirect URLs for your app`.
+
+### Notas prácticas
+
+- Google, Facebook y LinkedIn pueden devolver email. El flujo lo usa para enlazar invitaciones y cuentas existentes.
+- Instagram normalmente no devuelve email en este flujo. Si no existe un usuario enlazado previamente, la app exigirá invitación y no podrá completar alta automática solo con Instagram.
+- Si ya existe un usuario con el mismo email, el primer acceso social lo vincula a esa cuenta automáticamente.
+- Si no existe usuario y no es el primer usuario del sistema, la app exige una invitación pendiente para ese email.
 
 ## Verificación
 
