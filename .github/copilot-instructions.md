@@ -1,0 +1,7 @@
+- Proyecto: WellFlow reconstruido con Next.js App Router, TypeScript, Prisma y SQLite.
+- Mantener el diseño visual en la línea azul marino + azul eléctrico + dorado.
+- Preservar el aislamiento por usuario en cualquier cambio sobre registros diarios.
+- Las páginas autenticadas deben seguir usando helpers del servidor en `src/lib/auth.ts`.
+- Los formularios cliente usan rutas API en `src/app/api/**`.
+- Si se amplía el modelo Prisma, actualizar seed y README cuando sea necesario.
+- Evitar introducir dependencias externas para auth o email si no son necesarias.

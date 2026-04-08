@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  user
+}
+
+enum ThemeMode {
+  light
+  dark
+}
+
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  name            String
+  passwordHash    String
+  role            Role          @default(user)
+  preferredLocale String        @default("es")
+  themeMode       ThemeMode     @default(dark)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  dailyEntries    DailyEntry[]
+  invitationsSent Invitation[]  @relation("InvitationSender")
+}
+
+model DailyEntry {
+  id               String   @id @default(cuid())
+  userId           String
+  dateKey          String
+  mood             Int
+  mentalState      Int
+  physicalState    Int
+  sleepQuality     Int
+  sleepHours       Float
+  nutritionDone    Boolean  @default(false)
+  exerciseDone     Boolean  @default(false)
+  exerciseType     String?
+  exerciseMinutes  Int?
+  leisureDone      Boolean  @default(false)
+  leisureActivity  String?
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dateKey])
+  @@index([userId, dateKey])
+}
+
+model Invitation {
+  id          String    @id @default(cuid())
+  email       String
+  role        Role      @default(user)
+  token       String    @unique
+  invitedById String
+  acceptedAt  DateTime?
+  sentAt      DateTime?
+  lastDeliveryError String?
+  createdAt   DateTime  @default(now())
+  invitedBy   User      @relation("InvitationSender", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([email])
+}
