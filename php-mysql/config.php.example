@@ -1,0 +1,56 @@
+<?php
+
+return [
+    'app' => [
+        'name' => 'WellFlow',
+        'base_url' => 'https://tu-dominio.com',
+        'session_name' => 'wellflow_php_session',
+    ],
+    'database' => [
+        'host' => 'localhost',
+        'port' => 3306,
+        'name' => 'wellflow',
+        'user' => 'usuario_mysql',
+        'password' => 'password_mysql',
+        'charset' => 'utf8mb4',
+    ],
+    'mail' => [
+        'enabled' => false,
+        'from' => 'no-reply@tu-dominio.com',
+        'from_name' => 'WellFlow',
+    ],
+    'installer' => [
+        'enabled' => true,
+        'token' => 'cambia-este-token-de-instalacion',
+    ],
+    'debug' => [
+        'enabled' => false,
+        'token' => 'cambia-este-token-de-debug',
+    ],
+    'oauth' => [
+        'google' => [
+            'enabled' => false,
+            'client_id' => '',
+            'client_secret' => '',
+            'redirect_uri' => 'https://tu-dominio.com/oauth/callback?provider=google',
+        ],
+        'facebook' => [
+            'enabled' => false,
+            'client_id' => '',
+            'client_secret' => '',
+            'redirect_uri' => 'https://tu-dominio.com/oauth/callback?provider=facebook',
+        ],
+        'linkedin' => [
+            'enabled' => false,
+            'client_id' => '',
+            'client_secret' => '',
+            'redirect_uri' => 'https://tu-dominio.com/oauth/callback?provider=linkedin',
+        ],
+        'instagram' => [
+            'enabled' => false,
+            'client_id' => '',
+            'client_secret' => '',
+            'redirect_uri' => 'https://tu-dominio.com/oauth/callback?provider=instagram',
+        ],
+    ],
+];

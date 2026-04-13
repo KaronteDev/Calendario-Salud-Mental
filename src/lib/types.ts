@@ -31,6 +31,7 @@ export type TranslationDictionary = {
   physicalState: string;
   sleep: string;
   sleepQuality: string;
+  sleepLevel: string;
   sleepHours: string;
   dailyGoals: string;
   nutrition: string;
@@ -49,6 +50,7 @@ export type TranslationDictionary = {
   deleted: string;
   deleteRecord: string;
   moodLabels: string[];
+  sleepLevelLabels: string[];
   avgMood: string;
   avgMental: string;
   avgPhysical: string;
@@ -155,6 +157,7 @@ export type EntryRecord = {
   mentalState: number;
   physicalState: number;
   sleepQuality: number;
+  sleepLevel: number;
   sleepHours: number;
   nutritionDone: boolean;
   exerciseDone: boolean;

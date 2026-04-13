@@ -54,6 +54,11 @@ npm run dev
 - Admin: `admin@wellflow.local` / `Admin123!`
 - Usuario demo: `demo@wellflow.local` / `Demo123!`
 
+## Credenciales funcionales
+- admin@wellflow.local / Admin123!
+- ana@wellflow.local / Demo123!
+- invitado@wellflow.local / Invitado123!
+
 ## Rutas principales
 
 - `/` Dashboard autenticado

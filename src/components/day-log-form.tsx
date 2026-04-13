@@ -16,9 +16,10 @@ const LOCALE_TAGS = {
   ru: "ru-RU",
 } as const;
 
-const SCALE_EMOJIS = ["😞", "🙁", "😐", "🙂", "😄"];
-const SLEEP_EMOJIS = ["😫", "😴", "😐", "😊", "🌟"];
-const PHYSICAL_EMOJIS = ["🥀", "😮‍💨", "🙂", "💪", "⚡"];
+const SCALE_EMOJIS = ["😞", "😟", "😐", "🙂", "😊"];
+const SLEEP_EMOJIS = ["😫", "😪", "😐", "😌", "💤"];
+const SLEEP_LEVEL_EMOJIS = ["🌑", "🌒", "🌓", "🌔", "🌕"];
+const PHYSICAL_EMOJIS = ["🛌", "😓", "🙂", "💪", "🔥"];
 
 function formatDateLabel(dateKey: string, locale: keyof typeof LOCALE_TAGS) {
   const [year, month, day] = dateKey.split("-").map(Number);
@@ -90,6 +91,7 @@ export function DayLogForm({ dateKey, entry }: { dateKey: string; entry: EntryRe
     mentalState: entry?.mentalState ?? 3,
     physicalState: entry?.physicalState ?? 3,
     sleepQuality: entry?.sleepQuality ?? 3,
+    sleepLevel: entry?.sleepLevel ?? 3,
     sleepHours: entry?.sleepHours ?? 7,
     nutritionDone: entry?.nutritionDone ?? false,
     exerciseDone: entry?.exerciseDone ?? false,
@@ -216,6 +218,15 @@ export function DayLogForm({ dateKey, entry }: { dateKey: string; entry: EntryRe
                 labels={dictionary.moodLabels}
                 onChange={(value) => updateField("sleepQuality", value)}
                 value={form.sleepQuality}
+              />
+
+              <RatingInput
+                accent="emerald"
+                emojis={SLEEP_LEVEL_EMOJIS}
+                label={dictionary.sleepLevel}
+                labels={dictionary.sleepLevelLabels}
+                onChange={(value) => updateField("sleepLevel", value)}
+                value={form.sleepLevel}
               />
 
               <label className="block rounded-[1.5rem] border border-slate-200 bg-slate-50 px-4 py-4">

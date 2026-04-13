@@ -41,6 +41,7 @@ model DailyEntry {
   mentalState      Int
   physicalState    Int
   sleepQuality     Int
+  sleepLevel       Int      @default(3)
   sleepHours       Float
   nutritionDone    Boolean  @default(false)
   exerciseDone     Boolean  @default(false)

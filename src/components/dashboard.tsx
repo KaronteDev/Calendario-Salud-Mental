@@ -19,7 +19,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ChevronLeft, ChevronRight, Languages, Moon, Plus, Sun, X } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ChevronRight, Languages, Moon, Plus, Sun, X } from "lucide-react";
 import { useState } from "react";
 
 import { usePreferences } from "@/components/providers";
@@ -38,29 +38,40 @@ function LogoutButton({ label }: { label: string }) {
   }
 
   return (
-    <button className="flex w-full rounded-2xl px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-50" onClick={handleLogout} type="button">
+    <button
+      className="flex w-full rounded-2xl px-3 py-2 text-left text-sm text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)]"
+      onClick={handleLogout}
+      type="button"
+    >
       {label}
     </button>
   );
 }
 
-function HeaderIconButton({
+function HeaderControlButton({
   ariaLabel,
   children,
+  label,
   onClick,
+  expanded = false,
 }: {
   ariaLabel: string;
   children: React.ReactNode;
+  label: string;
   onClick?: () => void;
+  expanded?: boolean;
 }) {
   return (
     <button
       aria-label={ariaLabel}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 transition hover:border-slate-300 hover:bg-white hover:text-slate-950"
+      aria-expanded={expanded}
+      className="inline-flex h-11 items-center gap-2 rounded-full border border-[color:var(--surface-border)] bg-[var(--surface-strong)] px-4 text-sm font-medium text-[var(--muted)] shadow-[0_12px_32px_-24px_rgba(15,23,42,0.3)] transition hover:-translate-y-0.5 hover:text-[var(--text)]"
       onClick={onClick}
       type="button"
     >
       {children}
+      <span className="hidden sm:inline">{label}</span>
+      {expanded ? <ChevronDown size={16} className="hidden sm:inline" /> : null}
     </button>
   );
 }
@@ -138,6 +149,11 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
   const entryMap = new Map(entries.map((entry) => [entry.dateKey, entry]));
   const selectedEntry = selectedDateKey ? entryMap.get(selectedDateKey) ?? null : null;
   const todayKey = getTodayKey();
+  const selectedLocale = localeOptions.find((option) => option.code === locale) ?? localeOptions[0];
+  const themeLabel = theme === "dark" ? dictionary.lightMode : dictionary.darkMode;
+  const chartTextColor = theme === "dark" ? "#eef4ff" : "#0f172a";
+  const chartMutedColor = theme === "dark" ? "#a9b7d0" : "#64748b";
+  const chartGridColor = theme === "dark" ? "rgba(169, 183, 208, 0.14)" : "rgba(148, 163, 184, 0.22)";
 
   function navigateMonth(direction: -1 | 1) {
     const base = new Date(`${monthKey}-01T12:00:00`);
@@ -159,6 +175,7 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
       iconClass: "bg-emerald-100 text-emerald-700",
       label: dictionary.avgMood,
       value: formatFiveScale(analytics.summary.avgMood),
+      subvalue: undefined as string | undefined,
     },
     {
       eyebrow: "MIND",
@@ -166,6 +183,7 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
       iconClass: "bg-sky-100 text-sky-700",
       label: dictionary.avgMental,
       value: formatFiveScale(analytics.summary.avgMental),
+      subvalue: undefined as string | undefined,
     },
     {
       eyebrow: "BODY",
@@ -173,6 +191,7 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
       iconClass: "bg-amber-100 text-amber-700",
       label: dictionary.avgPhysical,
       value: formatFiveScale(analytics.summary.avgPhysical),
+      subvalue: undefined as string | undefined,
     },
     {
       eyebrow: "SLEEP",
@@ -210,37 +229,44 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
           : dictionary.goalsCompletion;
 
   return (
-    <main className="min-h-screen w-full bg-[#f5f7fc] px-4 py-4 text-slate-900 sm:px-6 lg:px-8">
-      <section className="relative mx-auto max-w-4xl overflow-hidden py-3 md:py-6">
-        <header className="relative mb-8 flex flex-col gap-5 border-b border-slate-200 pb-6 md:flex-row md:items-start md:justify-between">
+    <main className="relative min-h-screen w-full overflow-hidden bg-[var(--bg)] px-4 py-4 text-[var(--text)] sm:px-6 lg:px-8">
+      <div className="mesh-overlay" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_top,rgba(96,165,250,0.18),transparent_55%)]" />
+      <section className="relative mx-auto max-w-5xl overflow-hidden py-3 md:py-6">
+        <header className="glass-panel relative mb-8 flex flex-col gap-5 rounded-[2rem] p-5 md:flex-row md:items-start md:justify-between md:p-7">
           <div>
-            <h1 className="font-heading text-3xl font-semibold text-slate-950 md:text-4xl">{dictionary.appName}</h1>
-            <p className="mt-2 text-lg text-slate-500">{dictionary.appSubtitle}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent)]">Wellness</p>
+            <h1 className="font-heading text-3xl font-semibold text-[var(--text)] md:text-4xl">{dictionary.appName}</h1>
+            <p className="mt-2 text-lg text-[var(--muted)]">{dictionary.appSubtitle}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <HeaderIconButton ariaLabel={theme === "dark" ? dictionary.lightMode : dictionary.darkMode} onClick={toggleTheme}>
+            <HeaderControlButton ariaLabel={themeLabel} label={themeLabel} onClick={toggleTheme}>
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </HeaderIconButton>
+            </HeaderControlButton>
 
             <div className="relative">
-              <HeaderIconButton
+              <HeaderControlButton
                 ariaLabel={dictionary.language}
+                expanded
+                label={`${selectedLocale.flag} ${selectedLocale.label}`}
                 onClick={() => {
                   setIsLocaleMenuOpen((current) => !current);
                   setIsProfileMenuOpen(false);
                 }}
               >
                 <Languages size={18} />
-              </HeaderIconButton>
+              </HeaderControlButton>
               {isLocaleMenuOpen ? (
-                <div className="absolute right-0 z-20 mt-2 min-w-44 rounded-[1.25rem] border border-slate-200 bg-white p-2 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.35)]">
+                <div className="absolute right-0 z-20 mt-2 min-w-52 rounded-[1.25rem] border border-[color:var(--surface-border)] bg-[var(--surface-strong)] p-2 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.35)] backdrop-blur-xl">
                   {localeOptions.map((option) => (
                     <button
                       key={option.code}
                       className={cn(
                         "flex w-full items-center gap-3 rounded-2xl px-3 py-2 text-left text-sm transition",
-                        locale === option.code ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-50",
+                        locale === option.code
+                          ? "bg-[var(--primary)] text-white"
+                          : "text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]",
                       )}
                       onClick={() => {
                         setLocale(option.code);
@@ -250,6 +276,7 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
                     >
                       <span className="text-xs font-semibold uppercase tracking-[0.2em]">{option.flag}</span>
                       <span>{option.label}</span>
+                      {locale === option.code ? <Check size={15} className="ml-auto" /> : null}
                     </button>
                   ))}
                 </div>
@@ -257,7 +284,7 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
             </div>
 
             <Link
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--primary)] px-4 text-sm font-semibold text-white shadow-[0_16px_40px_-24px_rgba(29,78,216,0.95)] transition hover:translate-y-[-1px]"
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--primary)] px-4 text-sm font-semibold text-white shadow-[0_16px_40px_-24px_rgba(29,78,216,0.95)] transition hover:-translate-y-0.5"
               href={`/day/${todayKey}`}
             >
               <Plus size={18} />
@@ -265,26 +292,28 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
             </Link>
 
             <div className="relative">
-              <button
-                aria-label={user.name}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-bold text-[var(--primary)] transition hover:border-slate-300 hover:bg-white"
+              <HeaderControlButton
+                ariaLabel={user.name}
+                expanded
+                label={user.name}
                 onClick={() => {
                   setIsProfileMenuOpen((current) => !current);
                   setIsLocaleMenuOpen(false);
                 }}
-                type="button"
               >
-                {user.name.charAt(0).toUpperCase()}
-              </button>
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[color:color-mix(in_srgb,var(--primary)_18%,transparent)] text-xs font-bold text-[var(--primary)]">
+                  {user.name.charAt(0).toUpperCase()}
+                </span>
+              </HeaderControlButton>
               {isProfileMenuOpen ? (
-                <div className="absolute right-0 z-20 mt-2 min-w-56 rounded-[1.25rem] border border-slate-200 bg-white p-2 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.35)]">
-                  <div className="rounded-2xl px-3 py-2 text-sm text-slate-500">
-                    <p className="font-semibold text-slate-950">{user.name}</p>
+                <div className="absolute right-0 z-20 mt-2 min-w-64 rounded-[1.25rem] border border-[color:var(--surface-border)] bg-[var(--surface-strong)] p-2 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.35)] backdrop-blur-xl">
+                  <div className="rounded-2xl px-3 py-2 text-sm text-[var(--muted)]">
+                    <p className="font-semibold text-[var(--text)]">{user.name}</p>
                     <p className="mt-1 text-xs">{user.email}</p>
                   </div>
                   {user.role === "admin" ? (
                     <Link
-                      className="mt-1 flex rounded-2xl px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
+                      className="mt-1 flex rounded-2xl px-3 py-2 text-sm text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)]"
                       href="/admin/users"
                       onClick={() => setIsProfileMenuOpen(false)}
                     >
@@ -301,18 +330,18 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
         </header>
 
         <div className="relative space-y-10">
-          <section className="rounded-[2rem] bg-transparent p-2 md:p-0">
+          <section className="glass-panel rounded-[2rem] p-4 md:p-6">
             <div className="mb-7 flex items-center justify-between gap-4">
-              <button className="inline-flex h-11 w-11 items-center justify-center rounded-full text-slate-700 transition hover:bg-white hover:text-slate-950" onClick={() => navigateMonth(-1)} type="button">
+              <button className="inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[var(--surface-strong)] hover:text-[var(--text)]" onClick={() => navigateMonth(-1)} type="button">
                 <ChevronLeft size={18} />
               </button>
-              <h2 className="font-heading text-center text-3xl font-semibold text-slate-950 md:text-4xl">{formatMonthHeading(monthKey, locale)}</h2>
-              <button className="inline-flex h-11 w-11 items-center justify-center rounded-full text-slate-700 transition hover:bg-white hover:text-slate-950" onClick={() => navigateMonth(1)} type="button">
+              <h2 className="font-heading text-center text-3xl font-semibold text-[var(--text)] md:text-4xl">{formatMonthHeading(monthKey, locale)}</h2>
+              <button className="inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-[var(--surface-strong)] hover:text-[var(--text)]" onClick={() => navigateMonth(1)} type="button">
                 <ChevronRight size={18} />
               </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-y-5 text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 md:text-sm">
+            <div className="grid grid-cols-7 gap-y-5 text-center text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)] md:text-sm">
                 {dictionary.weekdays.map((weekday) => (
                   <div key={weekday} className="py-2">{weekday}</div>
                 ))}
@@ -330,13 +359,13 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
                       key={dateKey}
                       className={cn(
                         "flex min-h-24 flex-col items-center justify-start rounded-[1.8rem] border px-2 py-3 text-center transition md:min-h-28",
-                        isCurrentMonth ? "text-slate-950" : "text-slate-300",
+                        isCurrentMonth ? "text-[var(--text)]" : "text-[color:color-mix(in_srgb,var(--muted)_45%,transparent)]",
                         isActiveDay
-                          ? "border-[var(--primary)] bg-white shadow-[0_20px_45px_-28px_rgba(59,130,246,0.45)]"
+                          ? "border-[var(--primary)] bg-[var(--surface-strong)] shadow-[0_20px_45px_-28px_rgba(59,130,246,0.45)]"
                           : entry
                             ? "border-transparent bg-transparent"
                             : "border-transparent bg-transparent",
-                        !entry && isCurrentMonth ? "hover:bg-white/60" : "",
+                        !entry && isCurrentMonth ? "hover:bg-[color:color-mix(in_srgb,var(--surface-strong)_70%,transparent)]" : "",
                       )}
                       onClick={() => setSelectedDateKey(dateKey)}
                       type="button"
@@ -359,7 +388,7 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
                 })}
               </div>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-slate-500">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-[var(--muted)]">
               <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-rose-400" />{dictionary.legendBad}</span>
               <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-amber-400" />{dictionary.legendNormal}</span>
               <span className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-emerald-400" />{dictionary.legendGreat}</span>
@@ -368,16 +397,16 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
           </section>
 
           <section>
-            <h3 className="font-heading text-4xl font-semibold text-slate-950">{dictionary.monthSummary}</h3>
+            <h3 className="font-heading text-4xl font-semibold text-[var(--text)]">{dictionary.monthSummary}</h3>
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {summaryCards.map((card) => (
-                <article key={card.eyebrow} className="rounded-[1.6rem] border border-slate-200 bg-white px-5 py-4 shadow-[0_18px_45px_-38px_rgba(15,23,42,0.24)]">
+                <article key={card.eyebrow} className="glass-panel rounded-[1.6rem] px-5 py-4">
                   <div className="flex items-start gap-4">
                     <div className={cn("flex h-12 w-12 items-center justify-center rounded-[1rem] text-xl", card.iconClass)}>{card.emoji}</div>
                     <div>
-                      <p className="text-sm text-slate-500">{card.label}</p>
-                      <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">{card.value}</p>
-                      {card.subvalue ? <p className="mt-1 text-sm text-slate-500">{card.subvalue}</p> : null}
+                      <p className="text-sm text-[var(--muted)]">{card.label}</p>
+                      <p className="mt-1 text-2xl font-semibold tracking-tight text-[var(--text)] md:text-3xl">{card.value}</p>
+                      {card.subvalue ? <p className="mt-1 text-sm text-[var(--muted)]">{card.subvalue}</p> : null}
                     </div>
                   </div>
                 </article>
@@ -386,14 +415,16 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
           </section>
 
           <section>
-            <h3 className="font-heading text-4xl font-semibold text-slate-950">{dictionary.monthCharts}</h3>
-            <div className="mt-5 rounded-[1.7rem] bg-slate-100 p-1.5">
+            <h3 className="font-heading text-4xl font-semibold text-[var(--text)]">{dictionary.monthCharts}</h3>
+            <div className="mt-5 flex flex-wrap gap-2 rounded-[1.7rem] border border-[color:var(--surface-border)] bg-[color:color-mix(in_srgb,var(--surface)_88%,transparent)] p-1.5">
                 {chartTabs.map((tab) => (
                   <button
                     key={tab.key}
                     className={cn(
-                      "w-1/4 rounded-full px-4 py-3 text-sm font-medium transition",
-                      activeTab === tab.key ? "bg-white text-slate-950 shadow-[0_12px_30px_-22px_rgba(15,23,42,0.35)]" : "text-slate-500 hover:text-slate-700",
+                      "min-w-[calc(50%-0.25rem)] flex-1 rounded-full px-4 py-3 text-sm font-medium transition md:min-w-0",
+                      activeTab === tab.key
+                        ? "bg-[var(--surface-strong)] text-[var(--text)] shadow-[0_12px_30px_-22px_rgba(15,23,42,0.35)]"
+                        : "text-[var(--muted)] hover:text-[var(--text)]",
                     )}
                     onClick={() => setActiveTab(tab.key)}
                     type="button"
@@ -403,22 +434,22 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
                 ))}
             </div>
 
-            <div className="mt-5 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_24px_60px_-42px_rgba(15,23,42,0.3)]">
-              <p className="text-sm font-medium text-slate-500">{chartTitle}</p>
+            <div className="glass-panel mt-5 rounded-[2rem] p-5">
+              <p className="text-sm font-medium text-[var(--muted)]">{chartTitle}</p>
               <div className="mt-4 h-80 min-w-0">
                 {entries.length === 0 ? (
-                  <div className="flex h-full flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-slate-200 bg-slate-50 text-center">
-                    <h3 className="font-heading text-2xl text-slate-950">{dictionary.monthEmptyTitle}</h3>
-                    <p className="mt-3 max-w-sm text-sm text-slate-500">{dictionary.monthEmptyBody}</p>
+                  <div className="flex h-full flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-[color:var(--surface-border)] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] text-center">
+                    <h3 className="font-heading text-2xl text-[var(--text)]">{dictionary.monthEmptyTitle}</h3>
+                    <p className="mt-3 max-w-sm text-sm text-[var(--muted)]">{dictionary.monthEmptyBody}</p>
                   </div>
                 ) : activeTab === "trends" ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={analytics.trends}>
-                      <CartesianGrid stroke="#dbe4f0" strokeDasharray="3 3" vertical={true} />
-                      <XAxis dataKey="day" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                      <YAxis domain={[1, 5]} stroke="#94a3b8" tickLine={false} axisLine={false} allowDecimals={false} />
-                      <Tooltip contentStyle={{ borderRadius: 16, border: "1px solid #e2e8f0", boxShadow: "0 20px 50px -30px rgba(15,23,42,0.3)" }} />
-                      <Legend iconType="circle" />
+                      <CartesianGrid stroke={chartGridColor} strokeDasharray="3 3" vertical={true} />
+                      <XAxis dataKey="day" stroke={chartMutedColor} tickLine={false} axisLine={false} />
+                      <YAxis domain={[1, 5]} stroke={chartMutedColor} tickLine={false} axisLine={false} allowDecimals={false} />
+                      <Tooltip contentStyle={{ borderRadius: 16, border: "1px solid var(--surface-border)", background: "var(--surface-strong)", color: "var(--text)", boxShadow: "0 20px 50px -30px rgba(15,23,42,0.3)" }} />
+                      <Legend iconType="circle" wrapperStyle={{ color: chartTextColor }} />
                       <Line dataKey="mood" name={dictionary.chartMood} stroke="#2f80ed" strokeWidth={2.4} type="monotone" dot={{ r: 4, fill: "#2f80ed", strokeWidth: 0 }} />
                       <Line dataKey="mental" name={dictionary.chartMental} stroke="#48a8f0" strokeWidth={2.1} type="monotone" dot={{ r: 4, fill: "#48a8f0", strokeWidth: 0 }} />
                       <Line dataKey="physical" name={dictionary.chartPhysical} stroke="#ebb529" strokeWidth={2.1} type="monotone" dot={{ r: 4, fill: "#ebb529", strokeWidth: 0 }} />
@@ -428,28 +459,28 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
                 ) : activeTab === "sleep" ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={analytics.sleep}>
-                      <CartesianGrid stroke="#dbe4f0" strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="day" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                      <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} />
-                      <Tooltip contentStyle={{ borderRadius: 16, border: "1px solid #e2e8f0", boxShadow: "0 20px 50px -30px rgba(15,23,42,0.3)" }} />
+                      <CartesianGrid stroke={chartGridColor} strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="day" stroke={chartMutedColor} tickLine={false} axisLine={false} />
+                      <YAxis stroke={chartMutedColor} tickLine={false} axisLine={false} />
+                      <Tooltip contentStyle={{ borderRadius: 16, border: "1px solid var(--surface-border)", background: "var(--surface-strong)", color: "var(--text)", boxShadow: "0 20px 50px -30px rgba(15,23,42,0.3)" }} />
                       <Bar dataKey="hours" name={dictionary.chartHours} fill="#60a5fa" radius={[10, 10, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : activeTab === "profile" ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" data={analytics.profile} outerRadius="70%">
-                      <PolarGrid stroke="#dbe4f0" />
-                      <PolarAngleAxis dataKey="metric" />
+                      <PolarGrid stroke={chartGridColor} />
+                      <PolarAngleAxis dataKey="metric" tick={{ fill: chartTextColor, fontSize: 12 }} />
                       <Radar dataKey="value" fill="#60a5fa" fillOpacity={0.45} stroke="#2f80ed" />
                     </RadarChart>
                   </ResponsiveContainer>
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={analytics.goals} layout="vertical">
-                      <CartesianGrid stroke="#dbe4f0" strokeDasharray="3 3" horizontal={false} />
-                      <XAxis domain={[0, 100]} stroke="#94a3b8" tickLine={false} axisLine={false} type="number" />
-                      <YAxis dataKey="metric" stroke="#94a3b8" tickLine={false} axisLine={false} type="category" width={80} />
-                      <Tooltip contentStyle={{ borderRadius: 16, border: "1px solid #e2e8f0", boxShadow: "0 20px 50px -30px rgba(15,23,42,0.3)" }} />
+                      <CartesianGrid stroke={chartGridColor} strokeDasharray="3 3" horizontal={false} />
+                      <XAxis domain={[0, 100]} stroke={chartMutedColor} tickLine={false} axisLine={false} type="number" />
+                      <YAxis dataKey="metric" stroke={chartMutedColor} tickLine={false} axisLine={false} type="category" width={80} />
+                      <Tooltip contentStyle={{ borderRadius: 16, border: "1px solid var(--surface-border)", background: "var(--surface-strong)", color: "var(--text)", boxShadow: "0 20px 50px -30px rgba(15,23,42,0.3)" }} />
                       <Bar dataKey="value" fill="#d5b36a" radius={[0, 10, 10, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -457,17 +488,17 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
               </div>
               {activeTab === "sleep" ? (
                 <div className="mt-5 grid grid-cols-3 gap-3 text-center">
-                  <div className="rounded-[1.25rem] bg-slate-50 p-3">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{dictionary.average}</p>
-                    <p className="mt-2 text-xl font-semibold text-slate-950">{analytics.summary.avgSleepHours}</p>
+                  <div className="rounded-[1.25rem] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-3">
+                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">{dictionary.average}</p>
+                    <p className="mt-2 text-xl font-semibold text-[var(--text)]">{analytics.summary.avgSleepHours}</p>
                   </div>
-                  <div className="rounded-[1.25rem] bg-slate-50 p-3">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{dictionary.maximum}</p>
-                    <p className="mt-2 text-xl font-semibold text-slate-950">{analytics.summary.sleepMax}</p>
+                  <div className="rounded-[1.25rem] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-3">
+                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">{dictionary.maximum}</p>
+                    <p className="mt-2 text-xl font-semibold text-[var(--text)]">{analytics.summary.sleepMax}</p>
                   </div>
-                  <div className="rounded-[1.25rem] bg-slate-50 p-3">
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{dictionary.minimum}</p>
-                    <p className="mt-2 text-xl font-semibold text-slate-950">{analytics.summary.sleepMin}</p>
+                  <div className="rounded-[1.25rem] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-3">
+                    <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">{dictionary.minimum}</p>
+                    <p className="mt-2 text-xl font-semibold text-[var(--text)]">{analytics.summary.sleepMin}</p>
                   </div>
                 </div>
               ) : null}
@@ -478,15 +509,15 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
       </section>
 
       {selectedDateKey ? (
-        <div className="fixed inset-0 z-40 flex items-end justify-center bg-slate-950/45 backdrop-blur-sm" onClick={() => setSelectedDateKey(null)}>
-          <div className="w-full max-w-4xl rounded-t-[2rem] border border-slate-200 bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-            <div className="mx-auto mb-5 h-1.5 w-20 rounded-full bg-slate-200" />
+        <div className="fixed inset-0 z-40 flex items-end justify-center bg-[rgba(2,8,23,0.52)] backdrop-blur-sm" onClick={() => setSelectedDateKey(null)}>
+          <div className="glass-panel w-full max-w-4xl rounded-t-[2rem] p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="mx-auto mb-5 h-1.5 w-20 rounded-full bg-[color:color-mix(in_srgb,var(--muted)_35%,transparent)]" />
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <p className="font-heading text-sm uppercase tracking-[0.3em] text-[var(--accent)]">{dictionary.quickView}</p>
-                <h3 className="font-heading mt-2 text-3xl font-semibold text-slate-950">{selectedDateKey}</h3>
+                <h3 className="font-heading mt-2 text-3xl font-semibold text-[var(--text)]">{selectedDateKey}</h3>
               </div>
-              <button className="rounded-2xl border border-slate-200 p-3 text-slate-500 hover:border-slate-300 hover:text-slate-900" onClick={() => setSelectedDateKey(null)} type="button">
+              <button className="rounded-2xl border border-[color:var(--surface-border)] p-3 text-[var(--muted)] hover:text-[var(--text)]" onClick={() => setSelectedDateKey(null)} type="button">
                 <X size={18} />
               </button>
             </div>
@@ -494,36 +525,36 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
             {selectedEntry ? (
               <div className="space-y-5">
                 <div className="grid gap-4 md:grid-cols-4">
-                  <div className="rounded-[1.5rem] bg-slate-50 p-4">
-                    <p className="text-sm text-slate-500">{dictionary.mood}</p>
-                    <p className="mt-3 text-2xl font-semibold text-slate-950">{dictionary.moodLabels[selectedEntry.mood]}</p>
+                  <div className="rounded-[1.5rem] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-4">
+                    <p className="text-sm text-[var(--muted)]">{dictionary.mood}</p>
+                    <p className="mt-3 text-2xl font-semibold text-[var(--text)]">{dictionary.moodLabels[selectedEntry.mood]}</p>
                   </div>
-                  <div className="rounded-[1.5rem] bg-slate-50 p-4">
-                    <p className="text-sm text-slate-500">{dictionary.mentalState}</p>
-                    <p className="mt-3 text-2xl font-semibold text-slate-950">{selectedEntry.mentalState}/5</p>
+                  <div className="rounded-[1.5rem] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-4">
+                    <p className="text-sm text-[var(--muted)]">{dictionary.mentalState}</p>
+                    <p className="mt-3 text-2xl font-semibold text-[var(--text)]">{selectedEntry.mentalState}/5</p>
                   </div>
-                  <div className="rounded-[1.5rem] bg-slate-50 p-4">
-                    <p className="text-sm text-slate-500">{dictionary.physicalState}</p>
-                    <p className="mt-3 text-2xl font-semibold text-slate-950">{selectedEntry.physicalState}/5</p>
+                  <div className="rounded-[1.5rem] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-4">
+                    <p className="text-sm text-[var(--muted)]">{dictionary.physicalState}</p>
+                    <p className="mt-3 text-2xl font-semibold text-[var(--text)]">{selectedEntry.physicalState}/5</p>
                   </div>
-                  <div className="rounded-[1.5rem] bg-slate-50 p-4">
-                    <p className="text-sm text-slate-500">{dictionary.sleepHoursLabel}</p>
-                    <p className="mt-3 text-2xl font-semibold text-slate-950">{selectedEntry.sleepHours}h</p>
+                  <div className="rounded-[1.5rem] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-4">
+                    <p className="text-sm text-[var(--muted)]">{dictionary.sleepHoursLabel}</p>
+                    <p className="mt-3 text-2xl font-semibold text-[var(--text)]">{selectedEntry.sleepHours}h</p>
                   </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
-                  <div className="rounded-[1.5rem] bg-slate-50 p-4">
-                    <p className="text-sm text-slate-500">{dictionary.completedGoals}</p>
+                  <div className="rounded-[1.5rem] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-4">
+                    <p className="text-sm text-[var(--muted)]">{dictionary.completedGoals}</p>
                     <div className="mt-4 space-y-3 text-sm">
-                      <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3"><span>{dictionary.foodGoal}</span><span>{selectedEntry.nutritionDone ? "✓" : "—"}</span></div>
-                      <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3"><span>{dictionary.exerciseGoal}</span><span>{selectedEntry.exerciseDone ? "✓" : "—"}</span></div>
-                      <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3"><span>{dictionary.leisureGoal}</span><span>{selectedEntry.leisureDone ? "✓" : "—"}</span></div>
+                      <div className="flex items-center justify-between rounded-2xl border border-[color:var(--surface-border)] bg-[var(--surface-strong)] px-4 py-3"><span>{dictionary.foodGoal}</span><span>{selectedEntry.nutritionDone ? "✓" : "—"}</span></div>
+                      <div className="flex items-center justify-between rounded-2xl border border-[color:var(--surface-border)] bg-[var(--surface-strong)] px-4 py-3"><span>{dictionary.exerciseGoal}</span><span>{selectedEntry.exerciseDone ? "✓" : "—"}</span></div>
+                      <div className="flex items-center justify-between rounded-2xl border border-[color:var(--surface-border)] bg-[var(--surface-strong)] px-4 py-3"><span>{dictionary.leisureGoal}</span><span>{selectedEntry.leisureDone ? "✓" : "—"}</span></div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <div className="rounded-[1.5rem] bg-slate-50 p-4 text-sm text-slate-500">
+                    <div className="rounded-[1.5rem] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-4 text-sm text-[var(--muted)]">
                       <p>{dictionary.exerciseDetail}: {selectedEntry.exerciseDone ? `${selectedEntry.exerciseType ?? dictionary.exercise} · ${selectedEntry.exerciseMinutes ?? 0} ${dictionary.minutes}` : "-"}</p>
                       <p className="mt-2">{dictionary.leisureDetail}: {selectedEntry.leisureDone ? selectedEntry.leisureActivity ?? dictionary.leisure : "-"}</p>
                       <p className="mt-2">{dictionary.notesDetail}: {selectedEntry.notes || "-"}</p>
@@ -532,7 +563,7 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
                       <Link className="inline-flex rounded-2xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white" href={`/day/${selectedDateKey}`}>
                         {dictionary.editRecord}
                       </Link>
-                      <button className="inline-flex rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-500 hover:border-slate-300 hover:text-slate-900" onClick={() => setSelectedDateKey(null)} type="button">
+                      <button className="inline-flex rounded-2xl border border-[color:var(--surface-border)] px-4 py-3 text-sm text-[var(--muted)] hover:text-[var(--text)]" onClick={() => setSelectedDateKey(null)} type="button">
                         {dictionary.close}
                       </button>
                     </div>
@@ -540,8 +571,8 @@ export function Dashboard({ user, monthKey, entries }: { user: PublicUser; month
                 </div>
               </div>
             ) : (
-              <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-slate-50 p-5">
-                <p className="text-sm text-slate-500">{dictionary.noRecord} {selectedDateKey}</p>
+              <div className="rounded-[1.5rem] border border-dashed border-[color:var(--surface-border)] bg-[color:color-mix(in_srgb,var(--surface)_75%,transparent)] p-5">
+                <p className="text-sm text-[var(--muted)]">{dictionary.noRecord} {selectedDateKey}</p>
                 <Link className="mt-4 inline-flex rounded-2xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-white" href={`/day/${selectedDateKey}`}>
                   {dictionary.createRecord}
                 </Link>
